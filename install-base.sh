@@ -46,7 +46,7 @@ echo root:password | chpasswd
 #Network 
 pacman -S openssh iwd
 systemctl enable systemd-networkd
-systemctl enable systemd-reseolvd
+systemctl enable systemd-resolved
 systemctl enable iwd
 systemctl enable sshd
 
