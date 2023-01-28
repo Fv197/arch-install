@@ -62,11 +62,13 @@ echo "DHCP=yes" >> /etc/systemd/network/25-wireless.network
 echo "IgnoreCarrierLoss=3s" >> /etc/systemd/network/25-wireless.network
 
 #Utilities
-pacman -S mtools dosfstools btrfs-progs exfatprogs reflector base-devel git nfs-utils bluez bluez-utils ntfs-3g util-linux nano vim bash-completion htop man-db man-pages texinfo
-systemctl enable bluetooth
-systemctl enable reflector.timer
+pacman -S mtools dosfstools btrfs-progs exfatprogs exfat-utils e2fsprogs ntfs-3g util-linux base-devel git nano vim bash-completion htop man-db man-pages texinfo     
+
 systemctl enable fstrim.timer
-echo "--country Norway,Denmark,Sweden" >> /etc/xdg/reflector/reflector.conf
+
+#Bluetooth
+
+#Arch 
 
 #Sound 
 pacman -S alsa-utils pipewire pipewire-alsa pipewire-pulse pipewire-jack  
