@@ -71,6 +71,8 @@ echo "initrd  /intel-ucode.img" >> /boot/loader/entries/arch.conf
 echo "initrd  /initramfs-linux.img" >> /boot/loader/entries/arch.conf
 echo 'options root="LABEL=arch" rw' >> /boot/loader/entries/arch.conf
 
+##TEST
+
 #User configuration
 useradd -m aleksander
 echo aleksander:password | chpasswd
