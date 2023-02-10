@@ -24,7 +24,7 @@ chmod +x ./arch-install-chroot.sh
 chmod +x ./arch-install-post.sh
 
 sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/' /etc/pacman.conf
-sed -i 's/#Color/Color\nILoveCandy/'
+sed -i 's/#Color/Color\nILoveCandy/' /etc/pacman.conf
 
 # Comments with numbering is a reference to https://wiki.archlinux.org/title/installation_guide
 
