@@ -1,5 +1,3 @@
-#!/bin/sh
-source arch-install.cfg   
 
 # 3.3 Time zone
 echo "Setting time zone"

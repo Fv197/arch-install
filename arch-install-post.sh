@@ -1,10 +1,9 @@
-#!/bin/sh
+
 if [ "$EUID" -ne 0 ]
   then echo "Please run as root"
   exit
 fi
 
-source /mnt/home/$USER/arch-install/arch-install.cfg
 sed 's_source /mnt/home/$USER/arch-install/arch-install-post.sh__' .bashrc
 
 if nc -zw1 archlinux.org 443; 
