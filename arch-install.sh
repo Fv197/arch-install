@@ -103,7 +103,7 @@ rm /mnt/arch-install-chroot.sh
 mkdir /mnt/home/$USER/arch-install
 cp arch-install* /mnt/home/$USER/arch-install
 
-echo "source /mnt/home/$USER/arch-install/arch-install-post.sh" >> /mnt/root/.bashrc
+echo "source /home/$USER/arch-install/arch-install-post.sh" >> /mnt/root/.bashrc
 
 # 4. Reboot
 echo "*** Unmounting ***"
