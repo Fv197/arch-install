@@ -70,12 +70,12 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 # 3.2 Chroot
 
-echo "Changing to new system"
-cp chroot.sh /mnt/
-cp config /mnt
+echo "Changing root to new system"
+cp arch-install-chroot.sh /mnt/
+cp arch-install.cfg /mnt
 
 cat << EOF | arch-chroot /mnt
-./chroot.sh
+./arch-install-chroot.sh
 EOF
 
 rm /mnt/arch-install-chroot.sh
