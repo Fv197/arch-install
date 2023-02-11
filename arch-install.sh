@@ -16,12 +16,10 @@ x=11
 while [ $x -gt 0 ]
 do 
   sed -n "${x}p" arch-install.sh | cat - arch-install-chroot.sh > temp && mv temp arch-install-chroot.sh
-  sed -n "${x}p" arch-install.sh | cat - arch-install-post.sh > temp && mv temp arch-install-post.sh
   x=$(( $x - 1)) 
 done
 
 chmod +x ./arch-install-chroot.sh
-chmod +x ./arch-install-post.sh
 
 sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/' /etc/pacman.conf
 sed -i 's/#Color/Color\nILoveCandy/' /etc/pacman.conf
@@ -100,13 +98,7 @@ EOF
 
 rm /mnt/arch-install-chroot.sh
 
-mkdir /mnt/home/$USER/arch-install
-cp arch-install* /mnt/home/$USER/arch-install
-
-echo "source /home/$USER/arch-install/arch-install-post.sh" >> /mnt/root/.bashrc
-
 # 4. Reboot
 echo "*** Unmounting ***"
 umount -R /mnt
 echo "*** Installation done. Reboot when ready ***"
-echo "*** Login as root after reboot ***"
