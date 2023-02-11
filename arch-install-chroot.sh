@@ -81,11 +81,11 @@ systemctl enable --now snapper-timeline.timer
 systemctl enable --now snapper-cleanup.timer
 
 SWAPFILE=/swap/swapfile
-RAM=$(grep MemTotal /proc/meminfo | awk '{print $3}')
+RAM=$(grep MemTotal /proc/meminfo | awk '{print $2}')
 
 echo "*** Creating swapfile ***"
 
-btrfs filesystem mkswapfile -s ${RAM}g $SWAPFILE
+btrfs filesystem mkswapfile -s ${RAM}k $SWAPFILE
 swapon $SWAPFILE
 echo "$SWAPFILE                                  none            swap            defaults        0 0" >> /etc/fstab
 
@@ -97,7 +97,7 @@ OFFSET=$(btrfs inspect-internal map-swapfile -r $SWAPFILE)
 
 UUID=$(findmnt -no UUID -T $SWAPFILE)
 
-sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet resume=UUID=$UUID resume_offset=$OFFSET"/' /etc/default/grub
+sed -i "s/loglevel=3 quiet/loglevel=3 quiet resume=UUID=$UUID resume_offset=$OFFSET/" /etc/default/grub
 
 # Enable TLP
 echo "*** Installing TLP ***"
