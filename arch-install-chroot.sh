@@ -24,28 +24,12 @@ pacman -S --noconfirm networkmanager wpa_supplicant
 systemctl enable NetworkManager
 systemctl enable systemd-resolved
 
+echo "*** Configuring pacman ***"
+sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/' /etc/pacman.conf
+sed -i 's/#Color/Color\nILoveCandy/' /etc/pacman.conf
+
 echo "*** Installing utilities ***"
 pacman -S --noconfirm dosfstools btrfs-progs man-db man-pages texinfo bash-completion openssh sudo
-
-echo "*** Checking for TRIM support ***"
-DISCARD=$(lsblk -n --discard $DISK | awk '/^sda/' | awk '{print $3}')
-if [ "$DISCARD" != 0 ]
-then 
-	echo "*** Enabling TRIM ***"
-        systemctl enable fstrim.timer
-else
-	echo "*** TRIM support not detected on $DISK ***"
-fi
-
-echo "*** Setting root password ***"
-echo root:$ROOTP | chpasswd
-
-echo "*** Adding users ***"
-useradd -m -G wheel -U $USER 
-echo ${USER}:$USERP | chpasswd
-
-echo "*** Adding users to sudo ***"
-echo "$USER ALL=(ALL) ALL" >> /etc/sudoers.d/$USER
 
 # 3.8 Boot loader
 echo "*** Installing bootloader ***"
@@ -77,8 +61,8 @@ sed -i 's/TIMELINE_LIMIT_YEARLY="10"/TIMELINE_LIMIT_YEARLY="0"/' /etc/snapper/co
 
 chown -R :wheel /.snapshots
 
-systemctl enable --now snapper-timeline.timer
-systemctl enable --now snapper-cleanup.timer
+systemctl enable snapper-timeline.timer
+systemctl enable snapper-cleanup.timer
 
 SWAPFILE=/swap/swapfile
 RAM=$(grep MemTotal /proc/meminfo | awk '{print $2}')
@@ -91,6 +75,8 @@ echo "$SWAPFILE                                  none            swap           
 
 echo "*** Enabling hibernation ***"
 sed -i 's/filesystems fsck/filesystems resume fsck/' /etc/mkinitcpio.conf
+#While we're updating initramfs
+#sed -i 's/BINARIES=()/BINARIES=(btrfs)/' /etc/mkinitcpio.conf
 mkinitcpio -P
 
 OFFSET=$(btrfs inspect-internal map-swapfile -r $SWAPFILE)
@@ -107,6 +93,28 @@ sudo systemctl enable tlp
 sudo systemctl mask systemd-rfkill.socket
 sudo systemctl mask systemd-rfkill.service
 sudo systemctl enable NetworkManager-dispatcher
+
+
+
+echo "*** Checking for TRIM support ***"
+DISCARD=$(lsblk -n --discard $DISK | awk '/^sda/' | awk '{print $3}')
+if [ "$DISCARD" != 0 ]
+then 
+	echo "*** Enabling TRIM ***"
+        systemctl enable fstrim.timer
+else
+	echo "*** TRIM support not detected on $DISK ***"
+fi
+
+echo "*** Setting root password ***"
+echo root:$ROOTP | chpasswd
+
+echo "*** Adding users ***"
+useradd -m -G wheel -U $USER 
+echo ${USER}:$USERP | chpasswd
+
+echo "*** Adding users to sudo ***"
+echo "$USER ALL=(ALL) ALL" >> /etc/sudoers.d/$USER
 
 echo "*** Creating base snapshot ***"
 snapper -c root create -d "*** BASE ***"
