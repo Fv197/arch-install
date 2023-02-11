@@ -5,52 +5,112 @@ ln -sf /usr/share/zoneinfo/$ZONE /etc/localtime
 hwclock --systohc
 
 # 3.4 Localization
-echo "Configuring locale"
+echo "*** Configuring locale ***"
 echo $LOCALE >> /etc/locale.gen
 
 locale-gen
 
-echo "Setting language"
+echo "*** Setting language ***"
 echo 'LANG="$LANG"' > /etc/locale.conf
-echo "Setting keyboard"
+echo "*** Setting keyboard ***"
 echo "KEYMAP=$KEYMAP" > /etc/vconsole.conf
 
 # 3.5 Network configuration
-echo "Setting hostname"
+echo "*** Setting hostname ***"
 echo $HOSTNAME > /etc/hostname
 
-echo "Installing NetworkManager and enabling services"
+echo "*** Installing NetworkManager and enabling services ***"
 pacman -S --noconfirm networkmanager wpa_supplicant
 systemctl enable NetworkManager
 systemctl enable systemd-resolved
 
-echo "Installing utilities"
+echo "*** Installing utilities ***"
 pacman -S --noconfirm dosfstools btrfs-progs man-db man-pages texinfo bash-completion openssh sudo
 
-echo "Checking for TRIM support"
+echo "*** Checking for TRIM support ***"
 DISCARD=$(lsblk -n --discard $DISK | awk '/^sda/' | awk '{print $3}')
 if [ "$DISCARD" != 0 ]
 then 
-	echo "Enabling TRIM"
+	echo "*** Enabling TRIM ***"
         systemctl enable fstrim.timer
 else
-	echo "TRIM support not detected on $DISK"
+	echo "*** TRIM support not detected on $DISK ***"
 fi
 
-echo "Setting root password"
+echo "*** Setting root password ***"
 echo root:$ROOTP | chpasswd
 
-echo "Adding users"
+echo "*** Adding users ***"
 useradd -m -G wheel -U $USER 
 echo ${USER}:$USERP | chpasswd
 
-echo "Adding users to sudo"
+echo "*** Adding users to sudo ***"
 echo "$USER ALL=(ALL) ALL" >> /etc/sudoers.d/$USER
 
 # 3.8 Boot loader
-echo "Installing bootloader"
+echo "*** Installing bootloader ***"
 pacman -S --noconfirm grub efibootmgr grub-btrfs
  
-echo "Configurering GRUB"
+echo "*** Configurering GRUB ***"
 grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
-grub-mkconfig -o /boot/grub/grub.cfg
+#grub-mkconfig -o /boot/grub/grub.cfg
+
+echo "*** Installing snapper ***"
+pacman -S --noconfirm snapper 
+
+echo "*** Configure snapper ***"
+umount /.snapshots
+rm -r /.snapshots
+snapper -c root create-config /
+btrfs subvolume delete /.snapshots/
+mkdir /.snapshots
+mount -a
+
+ID=$(btrfs subvol list / | head -n 1 | awk '{print $2}')
+btrfs subvolume set-default $ID /
+
+sed -i 's/ALLOW_GROUPS=""/ALLOW_GROUPS="wheel"/' /etc/snapper/configs/root
+sed -i 's/TIMELINE_LIMIT_HOURLY="10"/TIMELINE_LIMIT_HOURLY="5"/' /etc/snapper/configs/root
+sed -i 's/TIMELINE_LIMIT_DAILY="10"/TIMELINE_LIMIT_DAILY="7"/' /etc/snapper/configs/root
+sed -i 's/TIMELINE_LIMIT_MONTHLY="10"/TIMELINE_LIMiT_MONTHLY="0"/' /etc/snapper/configs/root
+sed -i 's/TIMELINE_LIMIT_YEARLY="10"/TIMELINE_LIMIT_YEARLY="0"/' /etc/snapper/configs/root
+
+chown -R :wheel /.snapshots
+
+systemctl enable --now snapper-timeline.timer
+systemctl enable --now snapper-cleanup.timer
+
+SWAPFILE=/swap/swapfile
+RAM=$(grep MemTotal /proc/meminfo | awk '{print $3}')
+
+echo "*** Creating swapfile ***"
+
+btrfs filesystem mkswapfile -s ${RAM}g $SWAPFILE
+swapon $SWAPFILE
+echo "$SWAPFILE                                  none            swap            defaults        0 0" >> /etc/fstab
+
+echo "*** Enabling hibernation ***"
+sed -i 's/filesystems fsck/filesystems resume fsck/' /etc/mkinitcpio.conf
+mkinitcpio -P
+
+OFFSET=$(btrfs inspect-internal map-swapfile -r $SWAPFILE)
+
+UUID=$(findmnt -no UUID -T $SWAPFILE)
+
+sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"/GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet resume=UUID=$UUID resume_offset=$OFFSET"/' /etc/default/grub
+
+# Enable TLP
+echo "*** Installing TLP ***"
+pacman -S --noconfirm  tlp acpi_call smartmontools tp_smapi ethtool tlp-rdw   
+
+sudo systemctl enable tlp
+sudo systemctl mask systemd-rfkill.socket
+sudo systemctl mask systemd-rfkill.service
+sudo systemctl enable NetworkManager-dispatcher
+
+echo "*** Creating base snapshot ***"
+snapper -c root create -d "*** BASE ***"
+sudo grub-mkconfig -o /boot/grub/grub.cfg
+
+echo "*** Installing snap-pac ***"
+pacman -S --noconfirm snap-pac
