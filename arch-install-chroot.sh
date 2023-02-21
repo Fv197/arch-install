@@ -1,3 +1,6 @@
+#!/bin/sh
+
+source ./config
 
 # 3.3 Time zone
 echo "Setting time zone"
@@ -7,11 +10,11 @@ hwclock --systohc
 # 3.4 Localization
 echo "*** Configuring locale ***"
 echo $LOCALE >> /etc/locale.gen
-
 locale-gen
 
 echo "*** Setting language ***"
 echo LANG="$LANG" > /etc/locale.conf
+
 echo "*** Setting keyboard ***"
 echo KEYMAP=$KEYMAP > /etc/vconsole.conf
 
@@ -34,6 +37,7 @@ pacman -S --noconfirm dosfstools btrfs-progs man-db man-pages texinfo bash-compl
 # 3.8 Boot loader
 echo "*** Installing GRUB ***"
 pacman -S --noconfirm grub efibootmgr  
+
 echo "*** Configurering GRUB ***"
 grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
@@ -65,7 +69,7 @@ systemctl enable NetworkManager-dispatcher
 
 echo "*** Checking for TRIM support ***"
 DISCARD=$(lsblk -n --discard $DISK | awk '/^sda/' | awk '{print $3}')
-if [ "$DISCARD" != 0 ]
+if [ "$DISCARD" != 0 ];
 then 
 	echo "*** Enabling TRIM ***"
         systemctl enable fstrim.timer
