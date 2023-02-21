@@ -1,0 +1,28 @@
+### config
+
+# change if needed. The entire disk will be used for install
+DISK="/dev/sda"
+
+# set keymap for tty
+KEYMAP="no-latin1"
+
+#locale to be generated
+LOCALE="en_US.UTF-8 UTF-8"
+
+#lang to be used
+LANG="en_US.UTF-8"
+
+#timezone
+ZONE="Europe/Oslo"
+
+#password for root user
+ROOTP="ilovecoffe"
+
+#hostname
+HOSTNAME="Rocinante"
+
+#username for new user with sudo enabled
+USER="james"
+
+#password for new user
+USERP="ilovenaomi"
