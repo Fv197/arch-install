@@ -1,27 +1,25 @@
 #!/bin/sh
 DISK="/dev/sda"
-KEYMAP=no-latin1
+KEYMAP="no-latin1"
 LOCALE="en_US.UTF-8 UTF-8"
 LANG="en_US.UTF-8"
-ZONE=Europe/Oslo
-ROOTP=ilovecoffe
-HOSTNAME=Rocinante
-USER=james
-USERP=ilovenaomi
-SSID=LegitimateSalvage
-SSIDP=DonkeyBalls
+ZONE="Europe/Oslo"
+ROOTP="ilovecoffe"
+HOSTNAME="Rocinante"
+USER="james"
+USERP="ilovenaomi"
 
 # *** HOUSEKEEPING ***
-x=11
+x=9
 while [ $x -gt 0 ]
-do 
+do (
   sed -n "${x}p" arch-install.sh | cat - arch-install-chroot.sh > temp && mv temp arch-install-chroot.sh
   x=$(( $x - 1)) 
+)
 done
 
-chmod +x ./arch-install-chroot.sh
-
-sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/' /etc/pacman.conf
+# Configuring pacman
+sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/" /etc/pacman.conf
 sed -i 's/#Color/Color\nILoveCandy/' /etc/pacman.conf
 
 # Comments with numbering is a reference to https://wiki.archlinux.org/title/installation_guide
@@ -66,7 +64,7 @@ mkdir /mnt/{efi,home,var,swap,.snapshots}
 
 # Mount boot partition
 
-echo "*** Mounting ${DISK}2 at /mnt/efi ***"
+echo "*** Mounting ${DISK}1 at /mnt/efi ***"
 mount ${DISK}1 /mnt/efi
 
 # Mount subvolumes
@@ -74,10 +72,10 @@ echo "*** Mounting subvolumes ***"
 mount -o defaults,noatime,compress=zstd,space_cache=v2,ssd,discard=async,subvol=@home ${DISK}2 /mnt/home
 mount -o defaults,noatime,compress=zstd,space_cache=v2,ssd,discard=async,subvol=@var ${DISK}2 /mnt/var
 mount -o defaults,noatime,compress=zstd,space_cache=v2,ssd,discard=async,subvol=@snapshots ${DISK}2 /mnt/.snapshots
+mount -o defaults,noatime,nodatacow,space_cache=v2,ssd,subvol=@swap ${DISK}2 /mnt/swap
 
 # 2 Installation 
 # 2.2 Install essential packages
-#
 echo "*** Installing essential packages to new system ***"
 pacstrap -K /mnt base linux linux-firmware intel-ucode vim 
 
@@ -97,8 +95,12 @@ cat << EOF | arch-chroot /mnt
 EOF
 
 rm /mnt/arch-install-chroot.sh
+DIR=$(pwd)
+cp $DIR /mnt/home/$USER
 
 # 4. Reboot
 echo "*** Unmounting ***"
 umount -R /mnt
+echo "*** arch-install copied to /home/$USER ***"
 echo "*** Installation done. Reboot when ready ***"
+
