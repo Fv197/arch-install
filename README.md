@@ -17,4 +17,4 @@ Personal installation script for Arch Linux on Thinkpad T560
 1. Clone this repo
 2. Edit `config`
 3. Run `./arch-install.sh`
-4. Run scripts in 'post-install' after reboot
+4. Run scripts in `post-install` after reboot
