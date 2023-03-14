@@ -3,19 +3,31 @@
 if [ -f "config" ]; then
 	source ./config
 else
-	echo "!!! Config file does not exist. Clone the entire arch-install repositorie before running installation !!!"
+	echo "!!! Config file does not exist. Clone the entire arch-install repository before running installation !!!"
 	exit
 fi
 
-if [ -f "arch-install-chroot.sh"]; then
-else "!!! arch-install-chroot.sh does not exit. Clone te entire arch-install repositorie before running installation !!!"
+if [ -f "arch-install-chroot.sh" ]; then
+	echo "All content on $DISK will be lost"
+	echo 'Content of "config" will be used for this install'
+	read -p "Are you sure you want to continue <y/N> " prompt
+	if [[ $promt == "y" || $promt == "Y" ]]; then
+		echo "Starting arch install"
+	else
+		echo "Aborting arch install"
+		exit 0
+else
+       	"!!! arch-install-chroot.sh does not exit. Clone the entire arch-install repository before running installation !!!"
+	exit
+fi
 
-# configuring pacman
+# Configuring pacman
 echo "*** Enabling parallel downsloads in Pacman ***"
 sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/' /etc/pacman.conf
 sed -i 's/#Color/Color\nILoveCandy/' /etc/pacman.conf
 
 # Comments with numbering is a reference to https://wiki.archlinux.org/title/installation_guide
+# 1.9 Partition the disk
 echo "*** Removing old partitions on $DISK ***"
 sgdisk -z $DISK
 
@@ -62,7 +74,7 @@ echo "*** Mounting subvolumes ***"
 mount -o ${BTRFSOPT}subvol=@home ${DISK}2 /mnt/home
 mount -o ${BTRFSOPT}subvol=@var ${DISK}2 /mnt/var
 mount -o ${BTRFSOPT}subvol=@snapshots ${DISK}2 /mnt/.snapshots
-mount -o defaults,noatime,nodatacow,space_cache=v2,ssd,subvol=@swap ${DISK}2 /mnt/swap
+mount -o noatime,nodatacow,space_cache=v2,ssd,subvol=@swap ${DISK}2 /mnt/swap
 
 # 2 Installation 
 # 2.2 Install essential packages
@@ -87,8 +99,8 @@ rm /mnt/arch-install-chroot.sh
 rm /mnt/config
 
 DIR=$(pwd)
-cp $DIR /mnt/home/$USER
-
+cp -r $DIR /mnt/home/$USER
+chown -R ${USER}:$USER /mnt/home/$USER/arch-install
 # 4. Reboot
 echo "*** Unmounting ***"
 umount -R /mnt
