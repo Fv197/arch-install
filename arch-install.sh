@@ -11,11 +11,12 @@ if [ -f "arch-install-chroot.sh" ]; then
 	echo "All content on $DISK will be lost"
 	echo 'Content of "config" will be used for this install'
 	read -p "Are you sure you want to continue <y/N> " prompt
-	if [[ $promt == "y" || $promt == "Y" ]]; then
+	if [[ $prompt == "y" || $prompt == "Y" ]]; then
 		echo "Starting arch install"
 	else
 		echo "Aborting arch install"
 		exit 0
+	fi
 else
        	"!!! arch-install-chroot.sh does not exit. Clone the entire arch-install repository before running installation !!!"
 	exit
