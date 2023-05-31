@@ -89,8 +89,9 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 # 3.2 Chroot
 echo "*** Changing root to new system ***"
-cp ./arch-install-chroot.sh /mnt/
+cp ./arch-install-chroot.sh /mnt
 cp ./config /mnt
+cp ./gnome-pkglist.txt /mnt
 
 cat << EOF | arch-chroot /mnt
 ./arch-install-chroot.sh
@@ -98,6 +99,7 @@ EOF
 
 rm /mnt/arch-install-chroot.sh
 rm /mnt/config
+rm /mnt/gnome-pkglist.txt 
 
 DIR=$(pwd)
 cp -r $DIR /mnt/home/$USER
