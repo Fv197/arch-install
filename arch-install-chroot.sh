@@ -39,7 +39,6 @@ pacman -S --noconfirm --needed - < gnome-pkglist.txt
 
 echo "*** Enabling services ***"
 systemctl enable gdm
-systemctl enable cups
 systemctl enable bluetooth
 
 # 3.8 Boot loader
@@ -48,11 +47,11 @@ pacman -S --noconfirm grub efibootmgr
 
 echo "*** Configurering GRUB ***"
 grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
-#grub-mkconfig -o /boot/grub/grub.cfg #uncomment if command is removed from enabling hibernation
+#grub-mkconfig -o /boot/grub/grub.cfg #uncomment if command is removed from Enabling hibernation
 
 echo "*** Enabling binaries for btrfs at boot ***"
 sed -i 's/BINARIES=()/BINARIES=(btrfs)/' /etc/mkinitcpio.conf
-#mkinitcpio -P #uncomment if command is removed from enabling hibernation
+#mkinitcpio -P #uncomment if command is removed from Enabling hibernation
 
 echo "*** Creating swapfile ***"
 SWAPFILE=/swap/swapfile
