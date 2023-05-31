@@ -10,7 +10,7 @@ Personal installation script for Arch Linux on Thinkpad T560
   - Swapfile
 * Hibernation
 * GRUB
-* TLP
+* Gnome desktop 
 
 ## Instructions
 

@@ -32,7 +32,15 @@ systemctl enable NetworkManager
 systemctl enable systemd-resolved
 
 echo "*** Installing utilities ***"
-pacman -S --noconfirm dosfstools btrfs-progs man-db man-pages texinfo bash-completion openssh sudo
+pacman -S --noconfirm --needed dosfstools btrfs-progs man-db man-pages texinfo bash-completion openssh sudo
+
+echo "*** Installing Gnome Desktop ***"
+pacman -S --noconfirm --needed - < gnome-pkglist.txt
+
+echo "*** Enabling services ***"
+systemctl enable gdm
+systemctl enable cups
+systemctl enable bluetooth
 
 # 3.8 Boot loader
 echo "*** Installing GRUB ***"
@@ -67,13 +75,6 @@ OFFSET=$(btrfs inspect-internal map-swapfile -r $SWAPFILE)
 UUID=$(findmnt -no UUID -T $SWAPFILE)
 sed -i "s/loglevel=3 quiet/loglevel=3 quiet resume=UUID=$UUID resume_offset=$OFFSET/" /etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
-
-echo "*** Installing TLP ***"
-pacman -S --noconfirm tlp acpi_call smartmontools ethtool tlp-rdw   
-systemctl enable tlp
-systemctl mask systemd-rfkill.socket
-systemctl mask systemd-rfkill.service
-systemctl enable NetworkManager-dispatcher
 
 echo "*** Checking for TRIM support ***"
 DISCARD=$(lsblk -n --discard $DISK | awk '/^sda/' | awk '{print $3}')

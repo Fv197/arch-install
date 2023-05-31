@@ -1,0 +1,10 @@
+gnome
+gst-plugin-pipewire
+power-profiles-daemon
+firefox
+spotify-launcher
+libreoffice-fresh
+vlc
+cups
+hplip
+bluez
