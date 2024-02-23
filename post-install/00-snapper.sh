@@ -1,4 +1,10 @@
-#!/bin/sh
+#!/bin/bash
+
+if [ "$EUID" != 0 ]
+  then echo "Please run as root"
+  exit
+fi
+
 
 echo "*** Installing snapper, grub-btrfs and snap-pac ***"
 pacman -S --noconfirm snapper grub-btrfs snap-pac
