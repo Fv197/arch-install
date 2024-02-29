@@ -103,8 +103,7 @@ rm /mnt/gnome-pkglist.txt
 
 DIR=$(pwd)
 cp -r $DIR /mnt/home/$USER
-#chown -R ${USER}:$USER /mnt/home/$USER/arch-install
-#Returns chown: invalid user: 'james:james' 
+
 # 4. Reboot
 echo "*** Unmounting ***"
 umount -R /mnt
