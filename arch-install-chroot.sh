@@ -8,7 +8,7 @@ ln -sf /usr/share/zoneinfo/$ZONE /etc/localtime
 hwclock --systohc
 
 # 3.4 Localization
-echo "*** Configuring locale ***"
+echo "*** Generating the locales ***"
 echo $LOCALE >> /etc/locale.gen
 locale-gen
 
@@ -28,6 +28,7 @@ sed -i 's/#Color/Color\nILoveCandy/' /etc/pacman.conf
 
 echo "*** Installing NetworkManager ***"
 pacman -S --noconfirm networkmanager wpa_supplicant
+echo "*** Enabling network services ***"
 systemctl enable NetworkManager
 systemctl enable systemd-resolved
 
@@ -40,6 +41,10 @@ pacman -S --noconfirm --needed - < gnome-pkglist.txt
 echo "*** Enabling services ***"
 systemctl enable gdm
 systemctl enable bluetooth
+
+# 3.7 Root password
+echo "*** Setting root password ***"
+echo root:$ROOTP | chpasswd
 
 # 3.8 Boot loader
 echo "*** Installing GRUB ***"
@@ -56,15 +61,20 @@ sed -i 's/BINARIES=()/BINARIES=(btrfs)/' /etc/mkinitcpio.conf
 echo "*** Creating swapfile ***"
 SWAPFILE=/swap/swapfile
 RAM=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+echo "*** RAM size $RAM kB detected ***"
 if [ "$RAM" > 8000000 ]; then
 	SWAP=$(( RAM * 3/2 ))
+ 	echo "*** Setting swap file size to $SWAP kB ***"
 elif [ "$RAM" > 2000000 ]; then
 	SWAP=$(( RAM * 2 ))
+ 	echo "*** Setting swap file size to $SWAP kB ***"
 else
 	SWAP=$(( RAM * 3 ))
+ 	echo "*** Setting swap file size to $SWAP kB ***"
 fi
 
 btrfs filesystem mkswapfile -s ${SWAP}k $SWAPFILE
+echo "*** Adding swapfile to fstab ***"
 echo "$SWAPFILE                                  none            swap            defaults        0 0" >> /etc/fstab
 
 echo "*** Enabling hibernation ***"
@@ -75,7 +85,7 @@ UUID=$(findmnt -no UUID -T $SWAPFILE)
 sed -i "s/loglevel=3 quiet/loglevel=3 quiet resume=UUID=$UUID resume_offset=$OFFSET/" /etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
 
-echo "*** Checking for TRIM support ***"
+echo "*** Checking $DISK for TRIM support ***"
 DISCARD=$(lsblk -n --discard $DISK | awk '/^sda/' | awk '{print $3}')
 if [ "$DISCARD" != 0 ];
 then 
@@ -85,10 +95,7 @@ else
 	echo "*** TRIM support not detected on $DISK ***"
 fi
 
-echo "*** Setting root password ***"
-echo root:$ROOTP | chpasswd
-
-echo "*** Adding $USER ***"
+echo "*** Adding $USER user ***"
 useradd -m -G wheel -U $USER 
 echo ${USER}:$USERP | chpasswd
 
