@@ -7,6 +7,14 @@ else
 	exit
 fi
 
+if nc -zw1 archlinux.org 443; then
+	echo "Internet connectivity detected"
+else
+	echo "!!! Unable to detect internet connectivity. Verify connection before running installation !!!"
+ 	exit
+fi
+
+
 if [ -f "arch-install-chroot.sh" ]; then
 	echo "All content on $DISK will be lost"
 	echo 'Content of "config" will be used for this install'
