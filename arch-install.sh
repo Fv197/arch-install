@@ -118,26 +118,32 @@ pacstrap -K /mnt base linux linux-firmware intel-ucode vim
 echo "*** Generating fstab ***"
 genfstab -U /mnt >> /mnt/etc/fstab
 
-# 3.2 Chroot
-echo "*** Changing root to new system ***"
+# Adding install files to new system
+echo "*** Adding install files to new system ***"
 cp ./arch-install-chroot.sh /mnt
 cp ./config /mnt
 cp ./gnome-pkglist.txt /mnt
 
+# 3.2 Chroot
+echo "*** Changing root to new system ***"
 cat << EOF | arch-chroot /mnt
 ./arch-install-chroot.sh
 EOF
 
+# Removing install files to new system
+echo "*** Removing install files to new system ***"
 rm /mnt/arch-install-chroot.sh
 rm /mnt/config
 rm /mnt/gnome-pkglist.txt 
 
+echo "*** $DIR copied to /home/$USER ***"
 DIR=$(pwd)
 cp -r $DIR /mnt/home/$USER
 
 # 4. Reboot
 echo "*** Unmounting ***"
 umount -R /mnt
-echo "*** arch-install copied to /home/$USER ***"
+
 echo "*** Run scripts in post-install after reboot ***"
+echo "*** Be aware that config file containing user and root passwords is available in /home/$USER/arch-install/config ***"
 echo "*** Installation done. Reboot when ready ***"
