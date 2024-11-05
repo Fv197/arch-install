@@ -1,33 +1,53 @@
 #!/bin/sh
+# Comments with numbering is a reference to https://wiki.archlinux.org/title/installation_guide
 
+# Verify that config file is available
 if [ -f "config" ]; then
+	echo "*** Config file available ***"
 	source ./config
 else
 	echo "!!! Config file does not exist. Clone the entire arch-install repository before running installation !!!"
 	exit
 fi
 
+
+# 1.6 Verify the boot mode
+BOOT=$(cat /sys/firmware/efi/fw_platform_size)
+if [ "$BOOT" = 64 ]; then
+	echo "*** UEFI mode detected ***"
+elif [ "$BOOT" = 32 ]; then
+	echo "*** 32-bit UEFI mode detected ***"
+else
+	echo "!!! Unable to verify UEFI boot mode. Boot in UEFI before running installation !!!"
+ 	exit
+fi
+
+# 1.7 Connect to the internet
 if nc -zw1 archlinux.org 443; then
-	echo "Internet connectivity detected"
+	echo "*** Internet connectivity detected ***"
 else
 	echo "!!! Unable to detect internet connectivity. Verify connection before running installation !!!"
  	exit
 fi
 
-
+# Verify that arch-install-chroot.sh file is available
 if [ -f "arch-install-chroot.sh" ]; then
-	echo "All content on $DISK will be lost"
-	echo 'Content of "config" will be used for this install'
-	read -p "Are you sure you want to continue <y/N> " prompt
-	if [[ $prompt == "y" || $prompt == "Y" ]]; then
-		echo "Starting arch install"
-	else
-		echo "Aborting arch install"
-		exit 0
-	fi
+	echo "*** arch-install-chroot.sh file available ***"
 else
-       	"!!! arch-install-chroot.sh does not exit. Clone the entire arch-install repository before running installation !!!"
+       	echo "!!! arch-install-chroot.sh does not exit. Clone the entire arch-install repository before running installation !!!"
 	exit
+fi
+
+
+# Request confirmation to proceed
+echo "*** All content on $DISK will be lost ***"
+echo '*** Content of "config" will be used for this install ***'
+read -p "Are you sure you want to continue <y/N> " prompt
+if [[ $prompt == "y" || $prompt == "Y" ]]; then
+	echo "*** Starting arch install ***"
+else
+	echo "!!! Aborting arch install !!!"
+	exit 0
 fi
 
 # Configuring pacman
@@ -35,7 +55,10 @@ echo "*** Enabling parallel downsloads in Pacman ***"
 sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/' /etc/pacman.conf
 sed -i 's/#Color/Color\nILoveCandy/' /etc/pacman.conf
 
-# Comments with numbering is a reference to https://wiki.archlinux.org/title/installation_guide
+# 1.8 Update the system clock
+echo "*** Updating the system clock ***"
+timedatectl
+
 # 1.9 Partition the disk
 echo "*** Removing old partitions on $DISK ***"
 sgdisk -z $DISK
