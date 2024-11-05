@@ -131,14 +131,14 @@ cat << EOF | arch-chroot /mnt
 EOF
 
 # Removing install files to new system
-echo "*** Removing install files to new system ***"
+echo "*** Removing install files from new system ***"
 rm /mnt/arch-install-chroot.sh
 rm /mnt/config
 rm /mnt/gnome-pkglist.txt 
 
-echo "*** $DIR copied to /home/$USER ***"
 DIR=$(pwd)
 cp -r $DIR /mnt/home/$USER
+echo "*** $DIR copied to /home/$USER ***"
 
 # 4. Reboot
 echo "*** Unmounting ***"
