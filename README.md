@@ -18,3 +18,9 @@ Personal installation script for Arch Linux on Thinkpad T560
 2. Edit `config`
 3. Run `./arch-install.sh`
 4. Run scripts in `post-install` after reboot
+
+## TODO
+
+* Setting correct keymap in GNOME
+* Setting user ownership of arch-install post boot
+* Adding verification of internet connectivty in 00-snapper 
