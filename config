@@ -4,7 +4,7 @@
 DISK="/dev/sda"
 
 # set keymap for tty
-KEYMAP="no-latin1"
+KEYMAP="no"
 
 #locale to be generated
 LOCALE="en_US.UTF-8 UTF-8"

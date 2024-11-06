@@ -1,9 +1,19 @@
 #!/bin/bash
 
+# Verify that script is run as root
 if [ "$EUID" != 0 ]
-  then echo "Please run as root"
+  then echo "!!! Please run as root !!!"
   exit
 fi
+
+# Verify internet connectivity
+if nc -zw1 archlinux.org 443; then
+	echo "*** Internet connectivity detected ***"
+else
+	echo "!!! Unable to detect internet connectivity. Verify connection before running installation !!!"
+ 	exit
+fi
+
 
 
 echo "*** Installing snapper, grub-btrfs and snap-pac ***"

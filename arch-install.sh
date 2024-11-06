@@ -138,6 +138,7 @@ rm /mnt/gnome-pkglist.txt
 
 DIR=$(pwd)
 cp -r $DIR /mnt/home/$USER
+chown -R $USER:$USER /mnt/home/$USER
 echo "*** $DIR copied to /home/$USER ***"
 
 # 4. Reboot

@@ -17,6 +17,7 @@ echo LANG="$LANG" > /etc/locale.conf
 
 echo "*** Setting keyboard ***"
 echo KEYMAP=$KEYMAP > /etc/vconsole.conf
+echo XKBLAYOUT=$KEYMAP >> /etc/vconsole.conf
 
 # 3.5 Network configuration
 echo "*** Setting hostname ***"
@@ -33,7 +34,7 @@ systemctl enable NetworkManager
 systemctl enable systemd-resolved
 
 echo "*** Installing utilities ***"
-pacman -S --noconfirm --needed dosfstools btrfs-progs man-db man-pages texinfo bash-completion openssh sudo
+pacman -S --noconfirm --needed - < utils-pkglist.txt
 
 echo "*** Installing Gnome Desktop ***"
 pacman -S --noconfirm --needed - < gnome-pkglist.txt

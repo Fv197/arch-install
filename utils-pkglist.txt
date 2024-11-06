@@ -1,0 +1,10 @@
+dosfstools
+btrfs-progs
+man-db
+man-pages
+texinfo
+bash-completion
+openssh
+sudo
+base-devel
+git

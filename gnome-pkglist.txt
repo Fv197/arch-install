@@ -3,3 +3,4 @@ gst-plugin-pipewire
 power-profiles-daemon
 bluez
 firefox
+fwupd
