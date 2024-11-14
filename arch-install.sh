@@ -119,6 +119,11 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 # Adding install files to new system
 echo "*** Adding install files to new system ***"
+DIRPATH=$(pwd)
+DIR=${PWD##*/}
+rm $DIRPATH/config
+cp -r $DIRPATH /mnt/
+echo "*** $DIRPATH copied to /home/$USER/$DIR ***"
 cp ./arch-install-chroot.sh /mnt
 cp ./config /mnt
 cp ./gnome-pkglist.txt /mnt
@@ -136,13 +141,6 @@ rm /mnt/arch-install-chroot.sh
 rm /mnt/config
 rm /mnt/gnome-pkglist.txt
 rm /mnt/utils-pkglist.txt
-
-DIRPATH=$(pwd)
-DIR=${PWD##*/}
-rm $DIRPATH/config
-cp -r $DIRPATH /mnt/home/$USER
-chown -R $USER:$USER /mnt/home/$USER/$DIR
-echo "*** $DIRPATH copied to /home/$USER/$DIR ***"
 
 # 4. Reboot
 echo "*** Installation done ***"
