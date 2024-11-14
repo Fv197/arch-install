@@ -89,9 +89,8 @@ echo "*** Unmounting ${DISK}2 ***"
 umount /mnt
 
 # Mount root subvolume
-BTRFSOPT=defaults,noatime,compress=zstd,space_cache=v2,ssd,discard=async,
 echo "*** Mountint subvol @ ***"
-mount -o ${BTRFSOPT}subvol=@ ${DISK}2 /mnt
+mount -o subvol=@ ${DISK}2 /mnt
 
 # Create directories
 echo "*** Creating directories ***"
@@ -103,10 +102,10 @@ mount ${DISK}1 /mnt/efi
 
 # Mount subvolumes
 echo "*** Mounting subvolumes ***"
-mount -o ${BTRFSOPT}subvol=@home ${DISK}2 /mnt/home
-mount -o ${BTRFSOPT}subvol=@var ${DISK}2 /mnt/var
-mount -o ${BTRFSOPT}subvol=@snapshots ${DISK}2 /mnt/.snapshots
-mount -o noatime,nodatacow,space_cache=v2,ssd,subvol=@swap ${DISK}2 /mnt/swap
+mount -o subvol=@home ${DISK}2 /mnt/home
+mount -o subvol=@var ${DISK}2 /mnt/var
+mount -o subvol=@snapshots ${DISK}2 /mnt/.snapshots
+mount -o subvol=@swap ${DISK}2 /mnt/swap
 
 # 2 Installation 
 # 2.2 Install essential packages
@@ -138,15 +137,24 @@ rm /mnt/config
 rm /mnt/gnome-pkglist.txt
 rm /mnt/utils-pkglist.txt
 
-DIR=$(pwd)
-cp -r $DIR /mnt/home/$USER
-chown -R $USER:$USER /mnt/home/$USER
-echo "*** $DIR copied to /home/$USER ***"
+DIRPATH=$(pwd)
+DIR=${PWD##*/}
+rm $DIRPATH/config
+cp -r $DIRPATH /mnt/home/$USER
+chown -R $USER:$USER /mnt/home/$USER/$DIR
+echo "*** $DIRPATH copied to /home/$USER/$DIR ***"
 
 # 4. Reboot
-echo "*** Unmounting ***"
-umount -R /mnt
-
-echo "*** Run scripts in post-install after reboot ***"
-echo "*** Be aware that config file containing user and root passwords is available in /home/$USER/arch-install/config ***"
-echo "*** Installation done. Reboot when ready ***"
+echo "*** Installation done ***"
+echo "*** Run scripts in /home/$USER/$DIR/post-install after reboot ***"
+echo "*** Ready to reboot ***"
+read -p "Do you want to reboot system <y/N> " prompt
+if [[ $prompt == "y" || $prompt == "Y" ]]; then
+	echo "*** Unmounting ***"
+	umount -R /mnt
+ 	echo "*** Rebooting ***"
+  	systemctl reboot
+else
+	echo "!!! Run "umount -R /mnt" before rebooting !!!"
+	exit 0
+fi
