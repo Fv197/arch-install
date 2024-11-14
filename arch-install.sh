@@ -123,6 +123,7 @@ echo "*** Adding install files to new system ***"
 cp ./arch-install-chroot.sh /mnt
 cp ./config /mnt
 cp ./gnome-pkglist.txt /mnt
+cp ./utils-pkglist.txt /mnt
 
 # 3.2 Chroot
 echo "*** Changing root to new system ***"
@@ -134,7 +135,8 @@ EOF
 echo "*** Removing install files from new system ***"
 rm /mnt/arch-install-chroot.sh
 rm /mnt/config
-rm /mnt/gnome-pkglist.txt 
+rm /mnt/gnome-pkglist.txt
+rm /mnt/utils-pkglist.txt
 
 DIR=$(pwd)
 cp -r $DIR /mnt/home/$USER
