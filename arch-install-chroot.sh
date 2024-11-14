@@ -87,8 +87,11 @@ sed -i "s/loglevel=3 quiet/loglevel=3 quiet resume=UUID=$UUID resume_offset=$OFF
 grub-mkconfig -o /boot/grub/grub.cfg
 
 echo "*** Checking $DISK for TRIM support ***"
-DISCARD=$(lsblk -n --discard $DISK | awk '/^sda/' | awk '{print $3}')
-if [ "$DISCARD" != 0 ];
+DEV="${DISK%"${DISK##*[!/]}"}"
+DEV="${DEV##*/}"
+DISCGRAN=$(lsblk -n --discard $DISK | awk "/^$DEV/" | awk '{print $3}')
+DISCMAX=$(lsblk -n --discard $DISK | awk "/^$DEV/" | awk '{print $4}')
+if [ "$DISCGRAN" != 0 && "$DISCMAX" != 0 ];
 then 
 	echo "*** Enabling TRIM ***"
         systemctl enable fstrim.timer
