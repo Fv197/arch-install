@@ -119,15 +119,15 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 # Adding install files to new system
 echo "*** Adding install files to new system ***"
+cp ./arch-install-chroot.sh /mnt
+cp ./config /mnt
+cp ./gnome-pkglist.txt /mnt
+cp ./utils-pkglist.txt /mnt
 DIRPATH=$(pwd)
 DIR=${PWD##*/}
 rm $DIRPATH/config
 cp -r $DIRPATH /mnt/
 echo "*** $DIRPATH copied to /home/$USER/$DIR ***"
-cp ./arch-install-chroot.sh /mnt
-cp ./config /mnt
-cp ./gnome-pkglist.txt /mnt
-cp ./utils-pkglist.txt /mnt
 
 # 3.2 Chroot
 echo "*** Changing root to new system ***"
