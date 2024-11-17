@@ -8,3 +8,5 @@ openssh
 sudo
 base-devel
 git
+gnu-netcat
+cups
