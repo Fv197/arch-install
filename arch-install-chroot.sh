@@ -103,8 +103,8 @@ echo "*** Adding $USER user ***"
 useradd -m -G wheel -U $USER 
 echo ${USER}:$USERP | chpasswd
 
-cp -r /$DIR /mnt/home/$USER
-chown -R $USER:$USER /mnt/home/$USER/$DIR
+mv -r /$DIR /home/$USER
+chown -R $USER:$USER /home/$USER/$DIR
 
 echo "*** Adding $USER to sudo ***"
 echo "$USER ALL=(ALL) ALL" >> /etc/sudoers.d/$USER

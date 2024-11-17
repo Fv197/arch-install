@@ -146,13 +146,4 @@ rm /mnt/utils-pkglist.txt
 echo "*** Installation done ***"
 echo "*** Run scripts in /home/$USER/$DIR/post-install after reboot ***"
 echo "*** Ready to reboot ***"
-read -p "Do you want to reboot system <y/N> " prompt2
-if [[ $prompt2 == "y" || $prompt2 == "Y" ]]; then
-	echo "*** Unmounting ***"
-	umount -R /mnt
- 	echo "*** Rebooting ***"
-  	systemctl reboot
-else
-	echo "!!! Run "umount -R /mnt" before rebooting !!!"
-	exit 0
-fi
+echo "!!! Run "umount -R /mnt" before rebooting !!!"
