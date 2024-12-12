@@ -37,5 +37,10 @@ chown -R :wheel /.snapshots
 systemctl enable snapper-timeline.timer
 systemctl enable snapper-cleanup.timer
 
+
+echo "*** Configure grub-btrfs ***"
+/etc/grub.d/41_snapshots-btrfs
+grub-mkconfig -o /boot/grub/grub.cfg
+
 echo "*** Creating base snapshot ***"
 snapper -c root create -d "*** BASE ***"
