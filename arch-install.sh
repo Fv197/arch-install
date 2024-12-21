@@ -123,17 +123,19 @@ cp ./arch-install-chroot.sh /mnt
 cp ./config /mnt
 cp ./gnome-pkglist.txt /mnt
 cp ./utils-pkglist.txt /mnt
-DIRPATH=$(pwd)
-DIR=${PWD##*/}
-rm $DIRPATH/config
-cp -r $DIRPATH /mnt/
-echo "*** $DIRPATH copied to /home/$USER/$DIR ***"
 
 # 3.2 Chroot
 echo "*** Changing root to new system ***"
 cat << EOF | arch-chroot /mnt
 ./arch-install-chroot.sh
 EOF
+
+# Moving arch-install to home folder to created user
+DIRPATH=$(pwd)
+DIR=${PWD##*/}
+rm $DIRPATH/config
+cp -r $DIRPATH /mnt/home/$USER/
+echo "*** $DIRPATH copied to /home/$USER/$DIR ***"
 
 # Removing install files to new system
 echo "*** Removing install files from new system ***"

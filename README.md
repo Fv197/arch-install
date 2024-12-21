@@ -1,16 +1,18 @@
 # arch install
 
-Personal installation script for Arch Linux on Thinkpad T560 
+Installation script for Arch Linux.
+
+Primarily for personal use on a Thinkpad T560. Would ***highly*** recommend the [Installation Guide - ArchWiki](https://wiki.archlinux.org/title/Installation_guide)
 
 ## Description
 
-* Base installation
+* Base installation (UEFI, Intel)
 * BTRFS
-  - Snapper (post-install)
+  - Snapper (post install)
   - Swapfile
 * Hibernation
 * GRUB
-* Gnome desktop 
+* Gnome desktop
 
 ## Instructions
 

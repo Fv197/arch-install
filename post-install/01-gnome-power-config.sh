@@ -5,6 +5,7 @@ if [ "$EUID" = 0 ]
   exit
 fi
 
+# https://wiki.archlinux.org/title/GNOME#Power
 gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 3600
 gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-type hibernate
 gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-battery-timeout 1800

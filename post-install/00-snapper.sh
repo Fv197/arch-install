@@ -19,6 +19,7 @@ fi
 echo "*** Installing snapper, grub-btrfs and snap-pac ***"
 pacman -S --noconfirm snapper grub-btrfs snap-pac
 
+# https://wiki.archlinux.org/title/Snapper
 echo "*** Configure snapper ***"
 umount /.snapshots
 rm -r /.snapshots
