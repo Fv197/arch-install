@@ -63,18 +63,34 @@ timedatectl
 echo "*** Removing old partitions on $DISK ***"
 sgdisk -z $DISK
 
+echo "*** Detcting needed swap size ***"
+RAM=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+echo "*** RAM size $RAM kB detected ***"
+if [ "$RAM" > 8000000 ]; then
+	SWAP=$(( RAM * 3/2 ))
+ 	echo "*** Setting swap size to $SWAP kB ***"
+elif [ "$RAM" > 2000000 ]; then
+	SWAP=$(( RAM * 2 ))
+ 	echo "*** Setting swap size to $SWAP kB ***"
+else
+	SWAP=$(( RAM * 3 ))
+ 	echo "*** Setting swap size to $SWAP kB ***"
+fi
+
 echo "*** Creating new partitions on $DISK ***"
-sgdisk -n 0:0:+512MiB -t 0:ef00 -c 0:efi $DISK
+sgdisk -n 0:0:+1GiB -t 0:ef00 -c 0:efi $DISK
+sgdisk -n 0:0:+($SWAP)KiB -t 0:8200 -c 0:swap $DISK
 sgdisk -n 0:0:0 -t 0:8300 -c 0:arch $DISK
 
 # 1.10 Format partitions
 echo "*** Formating partitions on $DISK ***"
 mkfs.vfat -F32 -n EFI ${DISK}1
-mkfs.btrfs -f -L ARCH ${DISK}2
-
+mkswap -L SWAP ${DISK}2
+mkfs.btrfs -f -L ARCH ${DISK}3
+swapon ${DISK}2
 # 1.11 Mount the file systems
-echo "*** Mounting ${DISK}2 ***"
-mount ${DISK}2 /mnt
+echo "*** Mounting ${DISK}3 ***"
+mount ${DISK}3 /mnt
 
 # Create btrfs subvolumes
 echo "*** Creating subvolumes ***"
@@ -82,19 +98,18 @@ btrfs subvolume create /mnt/@
 btrfs subvolume create /mnt/@home
 btrfs subvolume create /mnt/@var
 btrfs subvolume create /mnt/@snapshots
-btrfs subvolume create /mnt/@swap
 
 # Unmount root partition
-echo "*** Unmounting ${DISK}2 ***"
+echo "*** Unmounting ${DISK}3 ***"
 umount /mnt
 
 # Mount root subvolume
 echo "*** Mountint subvol @ ***"
-mount -o subvol=@ ${DISK}2 /mnt
+mount -o subvol=@ ${DISK}3 /mnt
 
 # Create directories
 echo "*** Creating directories ***"
-mkdir /mnt/{efi,home,var,swap,.snapshots}
+mkdir /mnt/{efi,home,var,.snapshots}
 
 # Mount boot partition
 echo "*** Mounting ${DISK}1 at /mnt/efi ***"
@@ -102,10 +117,9 @@ mount ${DISK}1 /mnt/efi
 
 # Mount subvolumes
 echo "*** Mounting subvolumes ***"
-mount -o subvol=@home ${DISK}2 /mnt/home
-mount -o subvol=@var ${DISK}2 /mnt/var
-mount -o subvol=@snapshots ${DISK}2 /mnt/.snapshots
-mount -o subvol=@swap ${DISK}2 /mnt/swap
+mount -o subvol=@home ${DISK}3 /mnt/home
+mount -o subvol=@var ${DISK}3 /mnt/var
+mount -o subvol=@snapshots ${DISK}3 /mnt/.snapshots
 
 # 2 Installation 
 # 2.2 Install essential packages

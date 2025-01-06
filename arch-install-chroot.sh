@@ -28,7 +28,7 @@ sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/' /etc/pacman.conf
 sed -i 's/#Color/Color\nILoveCandy/' /etc/pacman.conf
 
 echo "*** Installing NetworkManager ***"
-pacman -S --noconfirm networkmanager wpa_supplicant
+pacman -S --noconfirm networkmanager
 echo "*** Enabling network services ***"
 systemctl enable NetworkManager
 systemctl enable systemd-resolved
@@ -48,43 +48,24 @@ echo "*** Setting root password ***"
 echo root:$ROOTP | chpasswd
 
 # 3.8 Boot loader
-echo "*** Installing GRUB ***"
-pacman -S --noconfirm grub efibootmgr  
-
-echo "*** Configurering GRUB ***"
-grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
-#grub-mkconfig -o /boot/grub/grub.cfg #uncomment if command is removed from Enabling hibernation
+echo "*** Configuring systemd-boot ***"
+bootctl install
+bootctl --esp-path=/efi --boot-path=/boot install
+echo "default arch.conf" > /efi/loader/loader.conf
+echo "timeout 0" >> /efi/loader/loader.conf
+echo "title Arch Linux" > /boot/loader/entries/arch.conf
+echo "linux /vmlinuz-linux" >> /boot/loader/entries/arch.conf
+echo "initrd /intel-ucode.img" >> /boot/loader/entries/arch.conf
+echo "initrd /initramfs-linux.img" >> /boot/loader/entries/arch.conf
+RUUID=$(findmnt -no UUID -T /)
+echo "options root=PARTUUID=$RUUID rw" >> /boot/loader/entries/arch.conf
 
 echo "*** Enabling binaries for btrfs at boot ***"
 sed -i 's/BINARIES=()/BINARIES=(btrfs)/' /etc/mkinitcpio.conf
-#mkinitcpio -P #uncomment if command is removed from Enabling hibernation
-
-echo "*** Creating swapfile ***"
-SWAPFILE=/swap/swapfile
-RAM=$(grep MemTotal /proc/meminfo | awk '{print $2}')
-echo "*** RAM size $RAM kB detected ***"
-if [ "$RAM" > 8000000 ]; then
-	SWAP=$(( RAM * 3/2 ))
- 	echo "*** Setting swap file size to $SWAP kB ***"
-elif [ "$RAM" > 2000000 ]; then
-	SWAP=$(( RAM * 2 ))
- 	echo "*** Setting swap file size to $SWAP kB ***"
-else
-	SWAP=$(( RAM * 3 ))
- 	echo "*** Setting swap file size to $SWAP kB ***"
-fi
-
-btrfs filesystem mkswapfile -s ${SWAP}k $SWAPFILE
-echo "*** Adding swapfile to fstab ***"
-echo "$SWAPFILE                                  none            swap            defaults        0 0" >> /etc/fstab
 
 echo "*** Enabling hibernation ***"
 sed -i 's/filesystems fsck/filesystems resume fsck/' /etc/mkinitcpio.conf
 mkinitcpio -P
-OFFSET=$(btrfs inspect-internal map-swapfile -r $SWAPFILE)
-UUID=$(findmnt -no UUID -T $SWAPFILE)
-sed -i "s/loglevel=3 quiet/loglevel=3 quiet resume=UUID=$UUID resume_offset=$OFFSET/" /etc/default/grub
-grub-mkconfig -o /boot/grub/grub.cfg
 
 echo "*** Checking $DISK for TRIM support ***"
 DEV="${DISK%"${DISK##*[!/]}"}"
