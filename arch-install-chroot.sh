@@ -50,15 +50,13 @@ echo root:$ROOTP | chpasswd
 # 3.8 Boot loader
 echo "*** Configuring systemd-boot ***"
 bootctl install
-bootctl --esp-path=/efi --boot-path=/boot install
 echo "default arch.conf" > /efi/loader/loader.conf
 echo "timeout 0" >> /efi/loader/loader.conf
-echo "title Arch Linux" > /boot/loader/entries/arch.conf
-echo "linux /vmlinuz-linux" >> /boot/loader/entries/arch.conf
-echo "initrd /intel-ucode.img" >> /boot/loader/entries/arch.conf
-echo "initrd /initramfs-linux.img" >> /boot/loader/entries/arch.conf
-RUUID=$(findmnt -no UUID -T /)
-echo "options root=PARTUUID=$RUUID rw" >> /boot/loader/entries/arch.conf
+echo "title Arch Linux" > /efi/loader/entries/arch.conf
+echo "linux /vmlinuz-linux" >> /efi/loader/entries/arch.conf
+echo "initrd /intel-ucode.img" >> /efi/loader/entries/arch.conf
+echo "initrd /initramfs-linux.img" >> /efi/loader/entries/arch.conf
+echo "options root=LABEL=ARCH rw" >> /efi/loader/entries/arch.conf
 
 echo "*** Enabling binaries for btrfs at boot ***"
 sed -i 's/BINARIES=()/BINARIES=(btrfs)/' /etc/mkinitcpio.conf

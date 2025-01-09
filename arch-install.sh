@@ -79,7 +79,7 @@ fi
 
 echo "*** Creating new partitions on $DISK ***"
 sgdisk -n 0:0:+1GiB -t 0:ef00 -c 0:efi $DISK
-sgdisk -n 0:0:+($SWAP)KiB -t 0:8200 -c 0:swap $DISK
+sgdisk -n 0:0:+${SWAP}KiB -t 0:8200 -c 0:swap $DISK
 sgdisk -n 0:0:0 -t 0:8300 -c 0:arch $DISK
 
 # 1.10 Format partitions
@@ -148,7 +148,7 @@ EOF
 DIRPATH=$(pwd)
 DIR=${PWD##*/}
 rm $DIRPATH/config
-cp -r $DIRPATH /mnt/home/$USER/
+cp -R $DIRPATH /mnt/home/$USER/
 echo "*** $DIRPATH copied to /home/$USER/$DIR ***"
 
 # Removing install files to new system
